@@ -95,3 +95,28 @@ GET /api/events?startTime=12:00&endTime=14:00
 - [Cloudflare Workers API 소스와 운영 안내](integrations/cgv-yongsan/worker/README.md)
 - [KOBIS 주간·주말 박스오피스 API 가이드](integrations/kobis/KOBIS_주간주말_박스오피스_API.md)
 - [KOBIS 웹 클라이언트와 서버 키 설정](integrations/kobis/README.md)
+
+## Cloudflare에 배포하기
+
+현재 배포 주소: https://gongang-zero.jw4570g.workers.dev
+
+Cloudflare Workers와 Static Assets로 같은 웹과 API를 함께 제공합니다. 기존 Vercel 배포 설정도 사용할 수 있습니다.
+
+```sh
+# 저장소 루트에서 실행합니다.
+npm ci
+npx wrangler login
+npm run check:cloudflare
+npm run deploy:cloudflare
+```
+
+`wrangler.jsonc`는 `public/`만 공개 파일로 올리고, `/api/events`, `/api/movies`, `/api/kobis-weekly`는 기존 서버 함수를 연결합니다. Node 호환 모드에서 Worker의 환경 변수·Secrets가 `process.env`로 전달됩니다.
+
+실제 데이터를 조회하려면 Cloudflare Secrets에 발급 키를 설정합니다. 키는 명령 인자나 코드에 적지 않고 대화형 입력으로 등록합니다.
+
+```sh
+npx wrangler secret put TOUR_API_KEY
+npx wrangler secret put KOBIS_API_KEY
+```
+
+로컬 Cloudflare 실행은 `.dev.vars`에 키를 설정한 뒤 `npm run dev:cloudflare`로 시작합니다. 키가 없으면 화면은 열리며, API는 키 미설정 상태를 안내합니다. `npm test`는 기존 추천·웹 로직과 KOBIS·CGV·Cloudflare 연결을 함께 검증합니다.
