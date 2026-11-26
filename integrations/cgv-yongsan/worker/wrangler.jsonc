@@ -1,0 +1,15 @@
+{
+  "name": "cgv-yongsan-showtimes",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-26",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "browser": {
+    "binding": "BROWSER"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}

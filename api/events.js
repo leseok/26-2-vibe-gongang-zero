@@ -1,6 +1,7 @@
-const { createTourApi } = require("../lib/tour-api");
-const { calendarDate, todayInKorea, minutesOf } = require("../lib/activity-schedule");
-const { recommend } = require("../lib/recommendations");
+import { activityHandler } from "../lib/activity-api.mjs";
+import { createTourApi } from "../lib/tour-api.js";
+import { calendarDate, todayInKorea, minutesOf } from "../lib/activity-schedule.js";
+import { recommend } from "../lib/recommendations.js";
 
 // date는 앱을 연 날의 한국 날짜여야 하며, 생략하면 서버에서 같은 기준으로 계산합니다.
 function readQuery(requestUrl, now) {
@@ -47,7 +48,7 @@ function errorStatus(issues) {
 }
 
 // 프론트에서 읽을 검색 상태와 카드를 반환하며, 인증키와 원본 오류 본문은 공개하지 않습니다.
-function makeHandler({ client, now = () => new Date(), frontendOrigin } = {}) {
+export function makeHandler({ client, now = () => new Date(), frontendOrigin } = {}) {
   return async function eventsHandler(req, res) {
     res.setHeader("Cache-Control", "no-store");
     if (frontendOrigin && req.headers.origin === frontendOrigin) {
@@ -80,22 +81,20 @@ function makeHandler({ client, now = () => new Date(), frontendOrigin } = {}) {
   };
 }
 
-const handler = makeHandler({
-  client: createTourApi({ key: process.env.TOUR_API_KEY }),
-  frontendOrigin: process.env.FRONTEND_ORIGIN,
-});
+const existingEvents = activityHandler(true);
+let recommendations;
 
-module.exports = handler;
-module.exports.makeHandler = makeHandler;
+// 날짜만 보내는 기존 화면은 행사 목록을 사용하고, 공강 조건을 보내면 추천을 실행합니다.
+export default function events(req, res) {
+  const { searchParams } = new URL(req.url, "http://localhost");
+  if (!["startTime", "endTime", "scope"].some((name) => searchParams.has(name))) {
+    return existingEvents(req, res);
+  }
 
-// npm run dev에서 브라우저나 curl로 서버리스 함수와 같은 경로를 시험할 수 있습니다.
-if (require.main === module) {
-  const { createServer } = require("node:http");
-  const port = Number(process.env.PORT || 3000);
-  createServer((req, res) => {
-    if (new URL(req.url, "http://localhost").pathname === "/api/events") return handler(req, res);
-    return writeJson(res, 404, { status: "error", message: "GET /api/events를 사용해주세요." });
-  }).listen(port, "127.0.0.1", () => {
-    console.log("http://127.0.0.1:" + port + "/api/events");
+  // 로컬 서버가 환경 파일을 불러온 뒤 첫 요청에서 클라이언트를 만듭니다.
+  recommendations ??= makeHandler({
+    client: createTourApi({ key: process.env.TOUR_API_KEY }),
+    frontendOrigin: process.env.FRONTEND_ORIGIN,
   });
+  return recommendations(req, res);
 }

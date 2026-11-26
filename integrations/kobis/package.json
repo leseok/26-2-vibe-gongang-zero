@@ -1,0 +1,6 @@
+{
+  "name": "gongang-zero-kobis-client",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test test/*.test.js" }
+}

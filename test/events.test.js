@@ -1,9 +1,9 @@
-const assert = require("node:assert/strict");
-const { test } = require("node:test");
-const { makeHandler } = require("../api/events");
-const { createTourApi } = require("../lib/tour-api");
-const { recommend } = require("../lib/recommendations");
-const { matchSchedule, scheduleFor } = require("../lib/activity-schedule");
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import events, { makeHandler } from "../api/events.js";
+import { createTourApi } from "../lib/tour-api.js";
+import { recommend } from "../lib/recommendations.js";
+import { matchSchedule, scheduleFor } from "../lib/activity-schedule.js";
 
 const DATE = "2026-11-26";
 const QUERY = { date: DATE, start: 720, end: 840, startTime: "12:00", endTime: "14:00", scope: "auto" };
@@ -146,6 +146,17 @@ test("짧은 호출 제한 뒤 성공한 응답을 유지한다", async () => {
   assert.equal(calls.length, 2);
 });
 
+test("상세 조회가 연속으로 제한되면 뒤따르는 상세 요청만 보내지 않는다", async () => {
+  const { client, calls } = mockTourApi((operation) => {
+    if (operation === "detailIntro2") return new Response("", { status: 429 });
+    return [];
+  });
+  await assert.rejects(client.intro("1", "14"), { code: "TOUR_API_LIMIT" });
+  await assert.rejects(client.intro("2", "14"), { code: "TOUR_API_LIMIT" });
+  assert.equal(calls.filter(({ operation }) => operation === "detailIntro2").length, 3);
+  assert.deepEqual(await client.byRegion(DATE, "590", "14"), { items: [] });
+});
+
 test("휴게시간과 마지막 입장 시각을 적용하고 휴관·시간 미확인은 제외한다", () => {
   const facility = {
     usetimeculture: "09:00~17:00<br>휴게시간 12:30~13:15<br>마지막 입장 13:20",
@@ -182,6 +193,7 @@ async function invoke(handler, url, method = "GET") {
   const res = {
     statusCode: 200,
     setHeader() {},
+    writeHead(code) { this.statusCode = code; },
     end(body) { this.body = JSON.parse(body); },
   };
   await handler({ url, method, headers: {} }, res);
@@ -210,4 +222,20 @@ test("한국 날짜 자정, 공강 입력 오류, 누락된 인증키를 HTTP �
   const noKey = await invoke(noKeyHandler, "/api/events?startTime=12:00&endTime=14:00");
   assert.equal(noKey.statusCode, 503);
   assert.deepEqual(noKey.body.issues, ["TOUR_API_KEY_MISSING"]);
+});
+
+test("날짜만 보내는 팀 프론트의 행사 API 응답 형식을 유지한다", async () => {
+  const previousKey = process.env.TOUR_API_KEY;
+  try {
+    delete process.env.TOUR_API_KEY;
+    const existing = await invoke(events, "/api/events?date=" + DATE);
+    assert.equal(existing.statusCode, 200);
+    assert.deepEqual(existing.body, { mode: "unconfigured", items: [] });
+
+    const recommendation = await invoke(events, "/api/events?startTime=13:00");
+    assert.equal(recommendation.statusCode, 400);
+    assert.equal(recommendation.body.code, "INVALID_QUERY");
+  } finally {
+    if (previousKey !== undefined) process.env.TOUR_API_KEY = previousKey;
+  }
 });
