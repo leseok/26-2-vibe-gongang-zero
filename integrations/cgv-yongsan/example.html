@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>용산 CGV API 호출 예제</title>
+</head>
+<body>
+  <!-- 정적 HTTP 서버에서 열어 실제 Cloudflare API를 호출하는 최소 예제입니다. -->
+  <h1>CGV 용산아이파크몰 상영시간표</h1>
+  <form id="search">
+    <label>날짜 <input name="date" type="date"></label>
+    <label>시작 <input name="from" type="time" value="18:00"></label>
+    <label>종료 <input name="to" type="time" value="23:59"></label>
+    <label>상영관 <input name="screen" placeholder="예: IMAX"></label>
+    <button type="submit">조회</button>
+  </form>
+  <p>종료 시각은 포함하지 않습니다. 영화 요금은 이 API에서 제공하지 않습니다.</p>
+  <p id="status" role="status" aria-live="polite">조회 조건을 선택하세요.</p>
+  <ul id="results"></ul>
+  <script type="module">
+    import { getYongsanShowtimes } from './client.js';
+    const form = document.querySelector('#search');
+    const status = document.querySelector('#status');
+    const results = document.querySelector('#results');
+    const button = form.querySelector('button');
+    // 컴퓨터의 시간대와 무관하게 한국 날짜를 기본값으로 표시합니다.
+    form.elements.date.value = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+
+    /** 폼 조건을 조회하고 로딩, 정상 결과, 빈 결과, 오류를 각각 안내합니다. */
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      results.replaceChildren();
+      status.textContent = '시간표를 불러오는 중입니다…';
+      try {
+        const data = await getYongsanShowtimes(Object.fromEntries(new FormData(form)));
+        status.textContent = data.total ? `${data.total}회 상영 · ${data.theater.name}` : '조건에 맞는 상영 회차가 없습니다.';
+        for (const show of data.showtimes) {
+          const item = document.createElement('li');
+          const seats = show.remainingSeats === null ? '잔여석 미확인' : `잔여 ${show.remainingSeats}석`;
+          // 외부 영화명은 HTML로 해석하지 않아 스크립트 삽입을 막습니다.
+          item.textContent = `${show.startTime}~${show.endTime} | ${show.displayTitle} | ${show.screen} | ${seats} | 가격 미확인 | 출처: CGV`;
+          results.append(item);
+        }
+      } catch (error) {
+        status.textContent = `조회 실패: ${error.message}`;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
