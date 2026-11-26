@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf8f2">
+  <title>공강제로 · 공강에 만나는 서울</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#finder">활동 찾기로 건너뛰기</a>
+  <!-- 전체 탐색, 출처별 탐색, 브라우저에 저장한 활동을 전환한다. -->
+  <header class="header">
+    <div class="wrap top">
+      <a class="logo" href="#top" aria-label="공강제로 홈"><span class="spark" aria-hidden="true"></span><b>공강제로</b></a>
+      <nav aria-label="주 메뉴">
+        <button type="button" data-nav="all" aria-pressed="true">발견하기</button>
+        <button type="button" data-nav="culture" aria-pressed="false">문화행사</button>
+        <button type="button" data-nav="movie" aria-pressed="false">영화</button>
+      </nav>
+      <button class="saved-nav" data-nav="saved" aria-pressed="false"><span class="bookmark-icon" aria-hidden="true"></span>저장한 활동 <span id="saved-count">0</span></button>
+    </div>
+  </header>
+  <main class="wrap" id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span>수업과 수업 사이, 나를 위한 시간</p>
+        <h1 id="hero-title">오늘 공강,<br>어떻게 보낼까<span>?</span></h1>
+        <p class="lead">서울의 전시·공연·영화를 한곳에서 찾아보세요.</p>
+        <button type="button" class="campus" id="campus"><span class="pin" aria-hidden="true"></span>숭실대가 있는 동작구에서 찾기 <span aria-hidden="true">›</span></button>
+      </div>
+      <img class="hero-art" src="assets/hero.webp" alt="" fetchpriority="high">
+    </section>
+    <!-- 기본 날짜는 서울 기준 오늘이며, 공강 시작과 종료 시간을 함께 입력한다. -->
+    <form class="finder" id="finder">
+      <div class="finder-title"><h2>비어 있는 시간을 알려주세요</h2><span id="duration"></span></div>
+      <div class="fields">
+        <label>날짜<input type="date" id="date" required></label>
+        <fieldset class="time-field"><legend>공강 시간</legend><div class="time-inputs">
+          <input type="time" id="start" value="13:00" aria-label="공강 시작" required>
+          <span aria-hidden="true">–</span><input type="time" id="end" value="16:00" aria-label="공강 끝" required>
+        </div></fieldset>
+        <label>지역<select id="district"><option value="">서울 전체</option></select></label>
+        <label>예산<select id="budget">
+          <option value="">전체 예산</option><option value="0">무료</option><option value="10000">1만 원 이하</option><option value="20000">2만 원 이하</option>
+        </select></label>
+        <button class="primary search" type="submit"><span class="glass" aria-hidden="true"></span>맞춤 활동 찾기</button>
+      </div>
+      <div class="moods"><strong>오늘은 어떤 기분인가요?</strong><div class="pills" id="mood-pills" role="group" aria-label="선호하는 분위기"></div></div>
+    </form>
+    <!-- 조회 상태는 상태 영역에서 안내하고 활동 카드는 목록에 추가한다. -->
+    <section class="results" id="results" aria-labelledby="results-title" tabindex="-1">
+      <div class="section-head">
+        <div><h2 id="results-title">내 공강에 어울리는 활동</h2><p id="results-desc">날짜와 취향에 맞는 문화행사와 영화를 찾아보세요.</p></div>
+        <span class="mode" id="mode"></span>
+      </div>
+      <div class="toolbar">
+        <div class="tabs" id="type-tabs" role="group" aria-label="활동 종류"></div>
+        <label class="free"><input type="checkbox" id="free">무료만 보기</label>
+      </div>
+      <div id="messages" role="status"></div>
+      <div id="cards" class="cards" aria-label="활동 목록"></div>
+      <button type="button" id="more" class="more" hidden>활동 더 보기</button>
+      <p class="summary" id="summary" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer><div class="wrap footer-inner"><span class="footer-logo">공강제로</span>
+    <div><span>데이터 출처</span><a href="https://www.data.go.kr/data/15101578/openapi.do" rel="noreferrer" target="_blank">한국관광공사 TourAPI</a><a href="https://www.kobis.or.kr/kobisopenapi/homepg/main/main.do" rel="noreferrer" target="_blank">영화진흥위원회 KOBIS</a></div>
+  </div></footer>
+  <!-- 카드 제목을 누르면 장소, 시간, 요금과 출처 링크를 함께 표시한다. -->
+  <dialog id="detail" aria-labelledby="detail-title">
+    <div class="dialog-head"><span id="detail-type" class="kicker"></span><button type="button" class="close" aria-label="상세 닫기" autofocus>×</button></div>
+    <h2 id="detail-title"></h2><dl id="detail-facts"></dl>
+    <p id="detail-note"></p><div id="detail-actions"></div>
+  </dialog>
+  <div class="sr" id="announce" role="status"></div>
+</body>
+</html>

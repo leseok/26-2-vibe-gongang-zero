@@ -1,11 +1,11 @@
-# 로컬 환경 변수와 인증 정보는 저장소에 올리지 않습니다.
 .env
 .env.*
 !.env.example
+.vercel/
+node_modules/
+
+# Cloudflare 로컬 인증 정보와 생성물은 버전 관리에서 제외합니다.
 .dev.vars
 .dev.vars.*
-# 의존성, 호스팅 도구의 생성물 및 운영체제 임시 파일입니다.
-node_modules/
-.vercel/
 .wrangler/
 .DS_Store
