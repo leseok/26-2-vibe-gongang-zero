@@ -7,6 +7,12 @@
   },
   "scripts": {
     "dev": "node server.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "dev:cloudflare": "wrangler dev",
+    "check:cloudflare": "wrangler deploy --dry-run",
+    "deploy:cloudflare": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.168.0"
   }
 }
