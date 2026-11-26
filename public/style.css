@@ -1,0 +1,178 @@
+/* 메인 화면, 검색 폼, 활동 카드가 공유하는 색상과 기본 글꼴이다. */
+:root {
+  color-scheme: light;
+  --paper: #faf8f2;
+  --ink: #172135;
+  --soft: #535c68;
+  --blue: #234bc5;
+  --line: #e2e2da;
+  font: 100%/1.5 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  word-break: keep-all;
+}
+* {box-sizing: border-box}
+body {margin: 0}
+button, input, select {font: inherit; color: inherit}
+button, a, select, input[type=checkbox] {cursor: pointer}
+button {border: 0; background: none}
+a {color: inherit; text-decoration: none}
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {outline: 3px solid #6888fc; outline-offset: 3px}
+h1, h2, h3, p, fieldset {margin: 0}
+.wrap {width: min(1216px, 89%); margin-inline: auto}
+/* 상단 메뉴와 로고를 유지하면서 작은 화면에서는 메뉴를 줄 바꿈한다. */
+.header {border-bottom: 1px solid var(--line); background: #fffefa}
+.top {display: flex; align-items: center; gap: 54px; min-height: 74px}
+.logo {display: inline-flex; gap: 8px; align-items: center; white-space: nowrap}
+.logo b {font-size: 2rem; line-height: 1; letter-spacing: -.09em}
+.spark {width: 23px; height: 27px; background: var(--blue); clip-path: polygon(50% 0,63% 33%,99% 49%,65% 62%,49% 100%,36% 65%,0 50%,36% 36%)}
+nav {display: flex; align-self: stretch; gap: 27px}
+nav button {font-weight: 650; color: var(--soft); padding: 0 2px; border-bottom: 2px solid transparent}
+nav button[aria-pressed=true] {color: var(--blue); border-color: var(--blue)}
+.saved-nav {margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-weight: 650; font-size: .92rem}
+.saved-nav[aria-pressed=true] {color: var(--blue)}
+#saved-count {background: #eeeee7; min-width: 21px; border-radius: 20px; font: 600 .8rem/21px system-ui}
+.bookmark-icon {display: inline-block; width: 14px; height: 18px; background: currentColor; clip-path: polygon(0 0,100% 0,100% 100%,50% 74%,0 100%,0 0,12% 14%,12% 83%,50% 61%,88% 83%,88% 12%,12% 12%)}
+.hero {display: grid; grid-template-columns: 1.05fr 1fr; gap: 8px; align-items: center; padding: 28px 0 24px; isolation: isolate}
+.hero-copy {z-index: 1; padding-left: 4px}
+.eyebrow {display: flex; align-items: center; gap: 9px; color: var(--blue); font-weight: 750; font-size: .89rem; letter-spacing: -.025em}
+.eyebrow span {width: 20px; height: 2px; background: currentColor}
+h1 {font-size: clamp(3rem,4.5vw,4.4rem); font-weight: 850; letter-spacing: -.085em; line-height: 1.11; margin: 11px 0}
+h1 span {color: var(--blue); font-family: Arial,sans-serif; padding-left: .02em}
+.lead {color: #454b55; letter-spacing: -.04em; font-size: 1.07rem}
+.campus {display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; padding: 0; font-size: .86rem; color: var(--blue); font-weight: 650}
+.pin {width: 12px; height: 12px; border: 2px solid currentColor; border-radius: 50% 50% 0 50%; transform: translateY(-2px) rotate(45deg)}
+.hero-art {width: auto; max-width: 100%; height: clamp(210px,22vw,303px); justify-self: center; object-fit: contain; mix-blend-mode: multiply; mask-image: linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(0deg,transparent,#000 7%,#000 95%,transparent); mask-composite: intersect; pointer-events: none}
+/* 검색 폼의 날짜, 공강 시간, 지역과 예산을 같은 높이로 정렬한다. */
+.finder {padding: 24px 29px 20px; background: #fff; border: 1px solid var(--line); border-radius: 21px; box-shadow: 0 5px 18px #29374709}
+.finder-title {display:flex; gap:12px; align-items:baseline; margin-bottom: 15px}
+.finder-title h2 {font-size: 1.22rem; letter-spacing: -.055em}
+#duration {color: var(--blue); font-size: .83rem; font-weight: 650}
+.fields {display: grid; grid-template-columns: 1fr 1.5fr .88fr .95fr 1.03fr; gap: 13px; align-items: end}
+.fields label,.time-field legend {font-size: .85rem; color: #444d58; font-weight: 650}
+.fields label {display: grid; gap: 5px; min-width: 0}
+.fields select,.fields input,.time-inputs {background-color: #fff; border: 1px solid #d4d8dd; border-radius: 8px; height: 44px; min-width: 0; width: 100%; padding: 0 11px; font-weight: 600; font-size: .94rem; color: var(--ink)}
+.fields select {appearance: none; background: linear-gradient(45deg, transparent 48%,#667080 50%) calc(100% - 17px) center / 5px 5px no-repeat, linear-gradient(135deg,#667080 49%,transparent 51%) calc(100% - 12px) center / 5px 5px no-repeat; padding-right: 28px}
+.time-field {min-width: 0; border: 0; padding: 0}
+.time-field legend {padding: 0; margin-bottom: 5px}
+.time-inputs {display: flex; align-items: center; gap: 3px; padding: 0 6px}
+.time-inputs input {border: 0; padding: 0 2px; height: 34px; flex: 1; font-variant-numeric: tabular-nums}
+.time-inputs span {color: #8590a0}
+.primary {color: white; background: var(--blue); font-weight: 700; border-radius: 9px; padding: 10px 15px; text-align: center}
+.primary:hover {background: #153da9}
+.search {display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 45px}
+.glass {display: inline-block; position: relative; width: 14px; height: 14px; border: 1.8px solid currentColor; border-radius: 50%; margin-right: 3px}
+.glass:after {content: ""; position: absolute; width: 6px; height: 2px; background: currentColor; right: -5px; bottom: -2px; transform: rotate(48deg)}
+.moods,.pills,.tabs {display: flex; align-items: center; flex-wrap: wrap; gap: 7px}
+.moods {gap: 12px; border-top: 1px solid #eeeee8; padding-top: 14px; margin-top: 18px}
+.moods strong {font-size: .87rem}
+.pills button,.tabs button {padding: 5px 13px; border-radius: 20px; border: 1px solid var(--line); font-size: .86rem; color: #53606d; font-weight: 600; background: #fff}
+.pills button[aria-pressed=true] {background: #edf2ff; color: var(--blue); border-color: #aabef3}
+.tabs button[aria-pressed=true] {background: var(--ink); color: white; border-color: var(--ink)}
+.results {margin: 36px 0 48px; scroll-margin-top: 18px; outline: 0}
+.section-head,.toolbar,.footer-inner {display: flex; align-items: center; justify-content: space-between; gap: 12px}
+.section-head h2 {font-size: clamp(1.5rem,2.35vw,2rem); line-height: 1.25; letter-spacing: -.07em}
+.section-head p {font-size: .96rem; color: var(--soft); margin-top: 5px}
+.mode {font-size: .8rem; color: #59636d; text-align: right}
+.toolbar {margin: 16px 0}
+.free {display: flex; align-items: center; gap: 6px; font-size: .87rem; white-space: nowrap}
+.free input {accent-color: var(--blue); width: 16px; height: 16px}
+/* 카드 열 수를 화면 폭에 맞춰 줄이고, 이미지가 없는 항목도 같은 위치에 정보를 표시한다. */
+.cards {display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px}
+.card {overflow: hidden; position: relative; background: #fff; border: 1px solid var(--line); border-radius: 14px; transition: box-shadow .15s}
+.card:hover {box-shadow: 0 6px 18px #20355412}
+.card-cover {position: relative; height: auto; aspect-ratio: 2.25; background-color: #eae6da; overflow: hidden; isolation: isolate}
+.card-cover img {width: 100%; height: 100%; object-fit: cover; display: block}
+.card-cover .tour-image {object-fit: contain}
+.cover-type {position: absolute; top: 12px; left: 12px; background: #fffffff2; color: #24324b; font-weight: 700; font-size: .76rem; padding: 3px 9px; border-radius: 20px}
+.save {position: absolute; z-index: 2; right: 12px; top: 11px; width: 34px; height: 34px; border-radius: 50%; background: #fff; display: grid; place-items: center; color: #2f3a49; box-shadow: 0 1px 5px #17213518}
+.save[aria-pressed=true] {background: var(--blue); color: white}
+.details-btn {display:block; padding:0; text-align:left; font-size: inherit; font-weight:inherit; overflow-wrap:anywhere}
+.details-btn:after {content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 14px}
+.details-btn:focus-visible:after {outline: 3px solid var(--blue); outline-offset: -3px}
+.card-body {padding: 15px 17px 14px}
+.card h3 {font-size: 1.2rem; line-height: 1.35; letter-spacing: -.05em}
+.meta,.schedule {font-size: .87rem; color: var(--soft); margin-top: 4px; overflow-wrap: anywhere}
+.card-bottom {display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; margin-top: 13px; border-top: 1px solid #efefe8; padding-top: 10px; font-size: .81rem; color: var(--soft)}
+/* 카드의 상세 창 클릭 영역보다 공식 링크를 위에 올려 직접 열 수 있게 한다. */
+.source-link {position: relative; z-index: 2; margin-left: auto; color: var(--blue); text-decoration: underline}
+.price {color: var(--blue); font-weight: 750}
+.no-poster {background: repeating-linear-gradient(135deg,#e5eaf2 0 24px,#d9e1ee 24px 48px); display:grid; place-items:center}
+.no-poster.movie {background: repeating-linear-gradient(130deg,#23395b 0 36px,#283f62 36px 72px)}
+.cover-mark {font-size: 2.7rem; color: #596a854d; letter-spacing: -.08em; font-weight: 800}
+.movie .cover-mark {color: #cedcfaad}
+.empty {grid-column: 1/-1; padding: 38px 12px; border: 1px dashed #ccd1d6; text-align: center; border-radius: 12px; background: #fffefa}
+.empty p,.summary {color: var(--soft); font-size: .86rem; margin-top: 7px}
+.summary {margin-top: 14px}
+.more {display: block; margin: 20px auto 0; border: 1px solid #c8ccd2; border-radius: 8px; padding: 8px 20px; background: white}
+#messages:not(:empty) {color: #66512a; background: #fff4db; padding: 9px 13px; border-radius: 8px; font-size: .87rem; margin-bottom: 12px}
+#messages button {text-decoration: underline; color: var(--blue); font-weight: 650}
+footer {border-top: 1px solid var(--line); padding: 22px 0 30px}
+.footer-logo {font-size: 1.16rem; font-weight: 800}
+.footer-inner div {display: flex; flex-wrap: wrap; gap: 14px; font-size: .8rem; color: var(--soft)}
+.footer-inner a:hover {text-decoration: underline}
+/* 상세 정보가 길어져도 모바일 화면 안에서 확인할 수 있게 한다. */
+dialog {width: min(490px,92vw); max-height: 85vh; border: none; border-radius: 19px; color: var(--ink); padding: 25px; box-shadow: 0 20px 100px #18274550}
+dialog::backdrop {background: #17213575}
+.dialog-head {display: flex; justify-content: space-between; align-items: center}
+.kicker {color: var(--blue); font-weight: 700; font-size: .9rem}
+.close {background: #f0f1ef; height: 34px; width: 34px; font-size: 1.35rem; border-radius: 50%}
+dialog h2 {font-size: 1.6rem; letter-spacing: -.06em; margin: 9px 0; overflow-wrap: anywhere}
+dl {display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 18px 0; font-size: .95rem}
+dt {color: var(--soft)} dd {margin: 0; overflow-wrap: anywhere}
+#detail-note {border-top: 1px solid var(--line); padding-top: 12px; color: var(--soft); font-size: .9rem}
+#detail-actions {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px}
+#detail-actions a {border: 1px solid #bac8ef; color: var(--blue); padding: 7px 12px; border-radius: 7px; font-weight: 650; font-size: .87rem}
+.sr,.skip:not(:focus) {position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%)}
+.skip:focus {position:fixed; top:6px; left:6px; background:white; z-index:5; padding:6px}
+[hidden] {display: none !important}
+@media(max-width:1050px) {
+  .wrap {width: 93%}
+  .fields {gap: 8px; grid-template-columns: 1fr 1.55fr .8fr .85fr 1fr}
+  .finder {padding: 20px}
+  .search {font-size: .92rem; padding-inline: 8px}
+}
+@media(max-width:800px) {
+  .top {gap: 24px; min-height: 62px} nav {gap: 15px}
+  .fields {grid-template-columns: 1fr 1.4fr}
+  .search {grid-column: 1/-1}
+  .cards {grid-template-columns: repeat(2,minmax(0,1fr))}
+  .hero-art {height: 205px}
+  .hero {padding-block: 25px}
+}
+@media(max-width:560px) {
+  .wrap {width: 91%}
+  .top {flex-wrap:wrap; gap:0; padding-top: 13px}
+  .logo b {font-size: 1.7rem}
+  nav {order: 3; width:100%; gap: 21px; margin-top: 5px}
+  nav button {padding: 9px 0; font-size: .9rem}
+  .saved-nav {font-size: .85rem}
+  .hero {grid-template-columns: 1fr; position:relative; padding: 27px 0 19px}
+  .hero-copy {padding:0}
+  h1 {font-size: 2.8rem; max-width: 75%}
+  .hero-art {position:absolute; right:-2%; top:46px; z-index:-1; width:38%; height:auto}
+  .lead {font-size: .94rem}
+  .campus {margin-top: 9px}
+  .finder {padding: 17px 13px; border-radius: 15px}
+  .finder-title {gap: 7px}
+  .finder-title h2 {font-size: 1.05rem}
+  .fields {grid-template-columns: minmax(0,.92fr) minmax(0,1.45fr)}
+  .fields input,.fields select {font-size: .86rem; padding-inline: 5px}
+  .time-inputs {padding-inline: 1px; gap: 1px}
+  .time-inputs input {padding-inline: 0}
+  .pills,.tabs {gap: 5px}
+  .pills button,.tabs button {padding: 4px 9px; font-size: .79rem}
+  .moods {gap: 8px}
+  .results {margin-top: 28px}
+  .section-head {align-items: flex-start; flex-direction: column; gap: 5px}
+  .section-head p {font-size: .88rem}
+  .toolbar {align-items: flex-start; flex-wrap: wrap; margin: 14px 0}
+  .cards {grid-template-columns: 1fr}
+  .footer-inner {align-items: flex-start; flex-direction: column}
+}
+@media(max-width:460px) {
+  .fields {grid-template-columns: repeat(2,minmax(0,1fr))}
+  .fields > label:first-child,.time-field {grid-column: 1/-1}
+  .fields input,.fields select {font-size: 1rem; padding-inline: 9px}
+  .time-inputs {gap: 6px}
+}

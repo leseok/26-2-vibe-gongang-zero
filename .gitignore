@@ -1,11 +1,5 @@
-# 로컬 환경 변수와 인증 정보는 저장소에 올리지 않습니다.
 .env
 .env.*
 !.env.example
-.dev.vars
-.dev.vars.*
-# 의존성, 호스팅 도구의 생성물 및 운영체제 임시 파일입니다.
-node_modules/
 .vercel/
-.wrangler/
-.DS_Store
+node_modules/
