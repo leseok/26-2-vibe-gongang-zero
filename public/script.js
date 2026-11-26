@@ -45,7 +45,8 @@ function safeLink(value) {
 // 폼 입력을 숫자와 문자열로 정리한다. 빈 예산은 제한 없음(null)으로 처리한다.
 function readFilters() {
   return {date: $("date").value, start: $("start").value, end: $("end").value,
-    district: $("district").value, budget: $("budget").value === "" ? null : Number($("budget").value)};
+    region: $("district").value,
+    district: $("district").value === "seoul" ? "" : $("district").value, budget: $("budget").value === "" ? null : Number($("budget").value)};
 }
 function updateDuration() {
   const n = minutes($("end").value) - minutes($("start").value);
@@ -77,15 +78,85 @@ function changeNav(next, scroll = true) {
   drawControls(); render();
   if (scroll) scrollResults();
 }
-// groupName은 events 또는 movies다. 마지막 요청만 반영해 빠른 날짜 변경에도 화면을 일치시킨다.
+// API가 검증한 회차를 기존 카드 형식에 맞추고 활동별로 가장 이른 회차를 보여준다.
+function recommendationCards(rows) {
+  const items = new Map();
+  for (const row of rows) {
+    const id = "tour-" + row.id;
+    if (items.has(id)) continue;
+    const {startTime, endTime, availableStartTime, availableEndTime} = row.schedule;
+    const type = types[row.activityType] ? row.activityType : "other";
+    const moods = type === "exhibit" ? ["혼자 조용히"] : type === "show" ? ["친구와 함께"] : ["새로운 경험"];
+    items.set(id, {
+      id, title: row.title, type, moods, category: row.category, source: "한국관광공사",
+      place: row.venue, district: row.district, address: row.address, link: row.detailUrl,
+      startDate: row.date, endDate: row.date, fee: row.fee, price: row.price ?? null, image: row.image,
+      hours: startTime + "~" + endTime, fixed: row.schedule.mode === "fixed",
+      available: availableStartTime + "–" + availableEndTime
+    });
+  }
+  return [...items.values()];
+}
+// 주변과 서울 전체를 같은 조건으로 조회한다. 조회 실패는 빈 결과와 구분한다.
+async function loadEvents(scope) {
+  const group = sourceGroups.events;
+  const request = ++group.request;
+  const {date, start, end, region} = filters;
+  const explicitRegion = Boolean(region);
+  let area = scope || (explicitRegion ? "seoul" : "nearby");
+  group.items = []; group.mode = "loading"; group.message = "";
+  group.scope = area; group.retryScope = area; render();
+  if (location.protocol === "file:") {
+    group.mode = "no-server"; render(); return;
+  }
+
+  try {
+    async function search() {
+      const query = new URLSearchParams({date, startTime: start, endTime: end, scope: area});
+      const response = await fetch("api/events?" + query, {
+        headers: {Accept: "application/json"}, signal: AbortSignal.timeout(65000)
+      });
+      const contentType = response.headers.get("content-type") || "";
+      if (response.status === 404 || (response.ok && contentType.includes("text/html"))) return null;
+      if (!contentType.includes("application/json")) throw new Error();
+      return response.json();
+    }
+    let data = await search();
+    if (request !== group.request) return;
+    if (area === "nearby" && data?.status === "empty" && data.canExpand === true) {
+      area = "seoul"; group.scope = area; group.retryScope = area;
+      group.message = "주변에 조건에 맞는 활동이 없어 서울 전체에서 찾고 있어요.";
+      render();
+      data = await search();
+      if (request !== group.request) return;
+    }
+    if (!data) {
+      group.mode = "no-server"; group.message = "";
+    } else if (["ok", "empty", "partial"].includes(data.status) && Array.isArray(data.items)) {
+      group.items = recommendationCards(data.items);
+      group.mode = data.status === "partial" ? "partial" : "live";
+      group.message = data.status === "partial" ? data.message : "";
+    } else {
+      group.mode = data.issues?.includes("TOUR_API_KEY_MISSING") ? "unconfigured" : "error";
+      group.message = data.issues?.includes("TOUR_API_LIMIT")
+        ? "관광공사 조회 한도에 도달했어요. 잠시 뒤 다시 시도해 주세요." : data.message;
+    }
+  } catch {
+    if (request !== group.request) return;
+    group.mode = "error"; group.message = "";
+  }
+  render();
+}
+// 영화는 기존 박스오피스 API를 사용하며 마지막 요청만 반영한다.
 async function load(groupName) {
+  if (groupName === "events") return loadEvents();
   const group = sourceGroups[groupName];
   const request = ++group.request;
   group.items = []; group.mode = "loading"; render();
   let mode = "no-server", items = [];
   try {
     if (location.protocol !== "file:") {
-      const path = groupName === "events" ? "api/events?date=" + filters.date : "api/movies";
+      const path = "api/movies";
       const response = await fetch(path, {headers:{Accept:"application/json"}, signal:AbortSignal.timeout(60000)});
       const isJSON = (response.headers.get("content-type") || "").includes("application/json");
       const staticPage = response.ok && (response.headers.get("content-type") || "").includes("text/html");
@@ -133,6 +204,7 @@ function schedule(item) {
     const rankDate = shortDate(item.rankDate);
     return [rankDate && rankDate + " 집계", item.minutes && item.minutes + "분"].filter(Boolean).join(" · ");
   }
+  if (item.available) return "방문 가능 " + item.available;
   return [shortDate(item.startDate),shortDate(item.endDate)].filter((v,i,a) => v && (!i || v !== a[0])).join(" – ") || "기간 확인";
 }
 // API가 보낸 행사 링크를 사용한다. 이전에 저장한 영화도 KOBIS 코드로 원문을 찾을 수 있다.
@@ -188,7 +260,7 @@ function render() {
     : nav === "movie" || type === "movie" ? "일별 관객 수 기준 순위예요. 상영 회차와 요금은 극장에서 확인하세요."
     : "날짜와 취향에 맞는 문화행사와 영화를 찾아보세요.";
   const groups = relevantGroups();
-  const states = {loading:"조회 중",error:"연결 오류",unconfigured:"키 미설정","no-server":"서버 연결 필요",live:"실제 데이터"};
+  const states = {loading:"조회 중",error:"연결 오류",unconfigured:"키 미설정","no-server":"서버 연결 필요",live:"실제 데이터",partial:"일부 결과"};
   $("mode").textContent = groups.map(k => sourceGroups[k].name + " · " + states[sourceGroups[k].mode]).join("　");
   $("messages").replaceChildren();
   if (groups.some(k => sourceGroups[k].mode === "no-server")) {
@@ -199,10 +271,19 @@ function render() {
   if (missingKeys.length) {
     $("messages").append(el("p","","필요한 환경변수: " + missingKeys.join(", ") + ". 로컬에서는 .env.local에 입력하고 서버를 재시작해 주세요."));
   }
-  for (const key of groups.filter(k => sourceGroups[k].mode === "error")) {
-    const line = el("div","", sourceGroups[key].name + " 조회에 실패했어요. 키와 네트워크 연결을 확인해 주세요. ");
+  if (groups.includes("events")) {
+    const events = sourceGroups.events;
+    if (events.scope === "seoul") {
+      $("messages").append(el("p","","검색 범위 · " + (filters.district || "서울 전체")));
+    } else {
+      $("messages").append(el("p","","검색 범위 · 숭실대학교 주변 6개 자치구"));
+    }
+    if (events.mode === "loading" && events.message) $("messages").append(el("p","",events.message));
+  }
+  for (const key of groups.filter(k => ["error","partial"].includes(sourceGroups[k].mode))) {
+    const line = el("div","", (sourceGroups[key].message || sourceGroups[key].name + " 조회에 실패했어요.") + " ");
     const retry = el("button","", "다시 조회"); retry.type = "button";
-    retry.addEventListener("click", () => load(key)); line.append(retry); $("messages").append(line);
+    retry.addEventListener("click", () => key === "events" ? loadEvents(sourceGroups.events.retryScope) : load(key)); line.append(retry); $("messages").append(line);
   }
   const items = selectItems();
   shownItems = new Map(items.map(item => [item.id,item]));
@@ -211,7 +292,7 @@ function render() {
   if (!items.length && (nav === "saved" || loading || groups.some(k => sourceGroups[k].mode === "live"))) {
     const empty = el("div","empty"), noSaves = nav === "saved" && !saved.size;
     empty.append(el("strong","",loading ? "활동을 불러오는 중이에요." : noSaves ? "아직 저장한 활동이 없어요." : "조건에 맞는 활동이 없어요."));
-    if (!loading) empty.append(el("p","",noSaves ? "활동 카드의 북마크를 누르면 여기에 모여요." : "날짜나 지역, 예산을 바꿔보세요."));
+    if (!loading) empty.append(el("p","",noSaves ? "활동 카드의 북마크를 누르면 여기에 모여요." : "공강 시간이나 지역, 예산을 바꿔보세요."));
     grid.append(empty);
   }
   $("more").hidden = items.length <= limit;
@@ -226,7 +307,7 @@ function detail(item) {
   $("detail-type").textContent = (item.category || types[item.type]) + " · " + item.source;
   $("detail-title").textContent = item.title;
   const facts = movie ? [["집계일",item.rankDate],["전국 순위",item.rank + "위"],["장르",item.genre],["러닝타임",item.minutes && item.minutes + "분"],["개봉일",item.openDate],["요금",priceText(item)]]
-    : [["장소",item.place || item.district || "장소 확인"],["주소",item.address !== item.place && item.address],["기간",[item.startDate,item.endDate].filter(Boolean).join(" ~ ")],["운영시간",item.hours || "시간 확인"],["이용요금",priceText(item)],["예상 관람",item.minutes && item.minutes + "분"]];
+    : [["장소",item.place || item.district || "장소 확인"],["주소",item.address !== item.place && item.address],["기간",[item.startDate,item.endDate].filter(Boolean).join(" ~ ")],["운영시간",item.hours || "시간 확인"],["방문 가능",item.available],["이용요금",priceText(item)],["예상 관람",item.minutes && item.minutes + "분"]];
   $("detail-facts").replaceChildren(...facts.filter(([,v]) => v).flatMap(([k,v]) => [el("dt","",k),el("dd","",v)]));
   const note = [item.note, movie ? "선택한 공강 시간의 실제 상영 회차는 극장 시간표에서 확인하세요." : "회차와 휴관일, 예약 가능 여부는 공식 안내를 확인하세요."];
   $("detail-note").textContent = note.filter(Boolean).join(" ");
@@ -255,12 +336,16 @@ for (const d of districts) $("district").add(new Option(d,d));
 filters = readFilters(); updateDuration();
 for (const id of ["start","end"]) $(id).addEventListener("input",updateDuration);
 $("finder").addEventListener("submit",e => {
-  e.preventDefault(); const previous = filters.date; filters = readFilters();
+  e.preventDefault();
+  const previous = filters;
+  $("date").value = seoulDate(); filters = readFilters();
   if (nav === "saved") changeNav("all",false);
-  limit = 6; render(); if (previous !== filters.date) load("events"); scrollResults();
+  limit = 6; render();
+  if (["date", "start", "end", "region"].some(key => previous[key] !== filters[key])) load("events");
+  scrollResults();
 });
 $("campus").addEventListener("click",() => {
-  $("district").value = "동작구"; changeNav("culture",false); $("finder").requestSubmit();
+  $("district").value = ""; changeNav("culture",false); $("finder").requestSubmit();
 });
 document.querySelectorAll("[data-nav]").forEach(b => b.addEventListener("click",() => changeNav(b.dataset.nav)));
 document.querySelector(".logo").addEventListener("click",() => changeNav("all",false));

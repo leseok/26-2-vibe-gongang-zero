@@ -29,7 +29,7 @@
         <p class="eyebrow"><span></span>수업과 수업 사이, 나를 위한 시간</p>
         <h1 id="hero-title">오늘 공강,<br>어떻게 보낼까<span>?</span></h1>
         <p class="lead">서울의 전시·공연·영화를 한곳에서 찾아보세요.</p>
-        <button type="button" class="campus" id="campus"><span class="pin" aria-hidden="true"></span>숭실대가 있는 동작구에서 찾기 <span aria-hidden="true">›</span></button>
+        <button type="button" class="campus" id="campus"><span class="pin" aria-hidden="true"></span>숭실대학교 주변에서 찾기 <span aria-hidden="true">›</span></button>
       </div>
       <img class="hero-art" src="assets/hero.webp" alt="" fetchpriority="high">
     </section>
@@ -37,12 +37,12 @@
     <form class="finder" id="finder">
       <div class="finder-title"><h2>비어 있는 시간을 알려주세요</h2><span id="duration"></span></div>
       <div class="fields">
-        <label>날짜<input type="date" id="date" required></label>
+        <label>날짜<input type="date" id="date" readonly></label>
         <fieldset class="time-field"><legend>공강 시간</legend><div class="time-inputs">
           <input type="time" id="start" value="13:00" aria-label="공강 시작" required>
           <span aria-hidden="true">–</span><input type="time" id="end" value="16:00" aria-label="공강 끝" required>
         </div></fieldset>
-        <label>지역<select id="district"><option value="">서울 전체</option></select></label>
+        <label>지역<select id="district"><option value="">숭실대학교 주변</option><option value="seoul">서울 전체</option></select></label>
         <label>예산<select id="budget">
           <option value="">전체 예산</option><option value="0">무료</option><option value="10000">1만 원 이하</option><option value="20000">2만 원 이하</option>
         </select></label>
