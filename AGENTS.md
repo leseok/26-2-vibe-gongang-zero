@@ -36,6 +36,27 @@
 - `.env.local`, `.vercel`, `node_modules` 등 민감 정보 및 임시 파일은 반드시 `.gitignore`에 등록하여 버전 관리에서 제외합니다.
 - 외부 서비스의 비밀 키는 배포 환경에서 호스팅 서비스의 환경 변수에 설정하며, 서버리스 함수에서만 읽습니다. 환경 변수 안내가 필요하면 실제 값 없이 `.env.example`에 변수 이름을 기록합니다.
 
+### 6. Git 브랜치 및 병합 규칙
+
+1. 팀원과 에이전트는 작업을 시작하기 전에 최신 `main`을 기준으로 작업마다 별도 브랜치를 만듭니다. `main`은 검증을 마친 변경을 공유하는 브랜치로 사용합니다.
+2. 작업 브랜치에서 구현, 검증, 커밋을 진행합니다. 검증이 끝나면 작업 브랜치를 GitHub에 푸시하고 `main`을 대상으로 Pull Request를 엽니다.
+3. Pull Request에 무엇을 바꿨는지와 확인 절차 및 결과를 적습니다. 변경 사항과 검증 결과를 확인한 뒤 Pull Request를 통해 `main`에 병합합니다.
+
+브랜치 이름은 `<유형>/<작업-이름>` 형식으로 짓습니다. 작업 이름은 변경 내용을 알아볼 수 있게 영문 소문자와 하이픈으로 작성합니다.
+
+| 접두어 | 용도 | 예시 |
+| --- | --- | --- |
+| `feat/` | 기능 추가 | `feat/event-api` |
+| `fix/` | 버그 수정 | `fix/free-filter` |
+| `docs/` | 문서 변경 | `docs/git-workflow` |
+| `chore/` | 저장소 유지보수 | `chore/update-gitignore` |
+| `refactor/` | 기존 동작을 유지하며 코드 구조 개선 | `refactor/event-normalization` |
+| `style/` | 들여쓰기, 공백 등 코드 형식 정리 | `style/format-script` |
+| `test/` | 테스트 추가 또는 수정 | `test/event-filters` |
+| `perf/` | 성능 개선 | `perf/render-event-cards` |
+| `build/` | 의존성이나 빌드 설정 변경 | `build/update-dependencies` |
+| `ci/` | CI 설정 변경 | `ci/add-validation` |
+
 ## 권장 디렉토리 구조
 
 ```text
