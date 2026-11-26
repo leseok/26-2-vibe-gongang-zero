@@ -73,3 +73,10 @@
 | `lib/activity-api.mjs` | 외부 데이터 조회 및 공통 응답 변환 |
 | `server.mjs`, `vercel.json` | 로컬 실행 서버와 Vercel 설정 |
 | `.env.example` | 로컬 환경변수 양식 |
+
+## 영화 API 자료
+
+- [용산 CGV 웹 연동·호출 예제](integrations/cgv-yongsan/README.md)
+- [Cloudflare Workers API 소스와 운영 안내](integrations/cgv-yongsan/worker/README.md)
+- [KOBIS 주간·주말 박스오피스 API 가이드](integrations/kobis/KOBIS_주간주말_박스오피스_API.md)
+- [KOBIS 웹 클라이언트와 서버 키 설정](integrations/kobis/README.md)

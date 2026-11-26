@@ -3,3 +3,9 @@
 !.env.example
 .vercel/
 node_modules/
+
+# Cloudflare 로컬 인증 정보와 생성물은 버전 관리에서 제외합니다.
+.dev.vars
+.dev.vars.*
+.wrangler/
+.DS_Store
