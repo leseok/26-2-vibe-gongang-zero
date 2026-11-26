@@ -16,3 +16,9 @@
 ## 기술 스택 및 개발 상태
 
 프론트엔드는 순수 HTML·CSS·JavaScript를 사용합니다. 외부 행사 데이터는 Node.js 기반 Vercel 서버리스 함수로 가져옵니다. 현재 기획 단계이며, 데이터 제공처와 로컬 실행 방법은 API 연동 후 추가합니다.
+
+## 영화 API 자료
+
+- [용산 CGV 웹 연동·호출 예제](integrations/cgv-yongsan/README.md)
+- [Cloudflare Workers API 소스와 운영 안내](integrations/cgv-yongsan/worker/README.md)
+- [KOBIS 주간·주말 박스오피스 API 가이드](integrations/kobis/KOBIS_주간주말_박스오피스_API.md)
