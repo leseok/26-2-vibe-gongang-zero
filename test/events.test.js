@@ -14,6 +14,7 @@ function mockTourApi(route) {
   const calls = [];
   const client = createTourApi({
     key: "example%2Bkey",
+    requestIntervalMs: 0,
     fetchImpl: async (url) => {
       const operation = url.pathname.split("/").at(-1);
       const params = Object.fromEntries(url.searchParams);
@@ -131,6 +132,18 @@ test("일부 페이지 실패는 빈 검색과 구분하고 확보한 결과를 
   assert.equal(error.status, "error");
   assert.equal(error.scope, "nearby");
   assert.equal(error.expanded, false);
+});
+
+test("짧은 호출 제한 뒤 성공한 응답을 유지한다", async () => {
+  const { client, calls } = mockTourApi((operation, params) => {
+    if (operation === "searchFestival2" && params.lDongSignguCd === "590" && calls.length === 1) {
+      return new Response("", { status: 429, headers: { "Retry-After": "0" } });
+    }
+    return [];
+  });
+  const result = await client.byRegion(DATE, "590", "15");
+  assert.deepEqual(result, { items: [] });
+  assert.equal(calls.length, 2);
 });
 
 test("휴게시간과 마지막 입장 시각을 적용하고 휴관·시간 미확인은 제외한다", () => {
