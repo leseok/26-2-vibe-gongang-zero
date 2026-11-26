@@ -1,0 +1,12 @@
+{
+  "name": "gongang-zero",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local api/events.js",
+    "test": "node --test"
+  }
+}

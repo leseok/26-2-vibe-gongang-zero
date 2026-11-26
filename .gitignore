@@ -1,0 +1,4 @@
+# 로컬 환경 변수, Vercel 설정, 설치된 의존성을 제외합니다.
+.env.local
+.vercel/
+node_modules/
